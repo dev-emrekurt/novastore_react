@@ -124,9 +124,10 @@ export default function Home() {
             >
               <Link
                 to="/products"
-                style={{ color: "inherit", textDecoration: "none" }}
+                style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem", justifyContent: "center" }}
               >
-                Alışverişe Başla →
+                Alışverişe Başla
+                <i className="bi bi-arrow-right"></i>
               </Link>
               
             </button>

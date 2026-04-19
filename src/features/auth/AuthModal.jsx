@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { COLORS } from "../../constants/color";
 import authService from "../../services/authService";
+import logger from "../../utils/logger";
 
 function AuthModal({ show, type, onClose }) {
   const [currentType, setCurrentType] = useState(type);
@@ -12,12 +13,28 @@ function AuthModal({ show, type, onClose }) {
   });
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Type prop değiştiğinde güncelle
   useEffect(() => {
     if (show) {
       setCurrentType(type);
       setStatus("");
+      setRememberMe(false);
+      
+      // Hatırlanmış email'i kontrol et (sadece login formunda)
+      if (type === "login") {
+        const rememberedEmail = localStorage.getItem("rememberedEmail");
+        if (rememberedEmail) {
+          setFormData((prev) => ({
+            ...prev,
+            email: rememberedEmail,
+          }));
+          setRememberMe(true);
+        }
+      }
     }
   }, [show, type]);
 
@@ -49,13 +66,14 @@ function AuthModal({ show, type, onClose }) {
       setStatus("Kaydediliyor...");
 
       try {
+        logger.authRegister(formData.email, formData.full_name);
         const result = await authService.register(
           formData.email,
           formData.password,
           formData.full_name
         );
+        logger.authRegisterSuccess(result);
         setStatus("✅ Kayıt başarılı! Giriş yapabilirsiniz.");
-        console.log("Sunucu yanıtı:", result);
         
         setTimeout(() => {
           setFormData({ full_name: "", email: "", password: "", confirmPassword: "" });
@@ -64,6 +82,7 @@ function AuthModal({ show, type, onClose }) {
           setCurrentType("login");
         }, 1500);
       } catch (err) {
+        logger.error("Kayıt Hatası", err);
         setStatus(`❌ Hata: ${err.message}`);
         setLoading(false);
       }
@@ -73,18 +92,30 @@ function AuthModal({ show, type, onClose }) {
       setStatus("Giriş yapılıyor...");
 
       try {
+        logger.authLogin(formData.email);
         const result = await authService.login(
           formData.email,
           formData.password
         );
+        logger.authLoginSuccess(result);
         setStatus("✅ Giriş başarılı!");
-        console.log("Sunucu yanıtı:", result);
         
-        // User bilgisini localStorage'a kaydet
-        localStorage.setItem("user", JSON.stringify(result.user || { 
-          email: formData.email, 
-          full_name: formData.full_name 
-        }));
+        // User bilgisini localStorage'a kaydet - fullName'i normalize et (API'den fullName olarak gelir)
+        const userData = {
+          email: result.user?.email || result.email || formData.email,
+          full_name: result.user?.fullName || result.user?.full_name || result.fullName || result.full_name || result.user?.name || result.name || formData.full_name || "Kullanıcı"
+        };
+        logger.storageSet("user", userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        
+        // Beni Hatırla durumunu kontrol et
+        if (rememberMe) {
+          logger.storageSet("rememberedEmail", formData.email);
+          localStorage.setItem("rememberedEmail", formData.email);
+        } else {
+          logger.storageRemove("rememberedEmail");
+          localStorage.removeItem("rememberedEmail");
+        }
         
         setTimeout(() => {
           setFormData({ full_name: "", email: "", password: "", confirmPassword: "" });
@@ -94,6 +125,7 @@ function AuthModal({ show, type, onClose }) {
           window.location.reload();
         }, 1500);
       } catch (err) {
+        logger.error("Giriş Hatası", err);
         setStatus(`❌ Hata: ${err.message}`);
         setLoading(false);
       }
@@ -143,9 +175,14 @@ function AuthModal({ show, type, onClose }) {
               color: COLORS.text,
               fontSize: "30px",
               marginBottom: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
             }}
           >
-            {isLogin ? "🔐 Giriş Yap" : "📝 Hesap Oluştur"}
+            <i className={`bi ${isLogin ? "bi-lock-fill" : "bi-pencil-square"}`}></i>
+            {isLogin ? "Giriş Yap" : "Hesap Oluştur"}
           </h2>
           <p style={{ color: COLORS.primary, opacity: 0.8, marginBottom: 0 }}>
             {isLogin
@@ -170,16 +207,85 @@ function AuthModal({ show, type, onClose }) {
               >
                 Ad-Soyad
               </label>
+              <div style={{ position: "relative" }}>
+                <i
+                  className="bi bi-person"
+                  style={{
+                    position: "absolute",
+                    left: "0.75rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    fontSize: "1.1rem",
+                    pointerEvents: "none",
+                    color: COLORS.text,
+                  }}
+                ></i>
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  placeholder="Adınız ve Soyadınız"
+                  required={!isLogin}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem 0.75rem 0.75rem 2.5rem",
+                    border: `2px solid ${COLORS.text}`,
+                    borderRadius: "8px",
+                    fontFamily: "Montserrat",
+                    fontSize: "0.95rem",
+                    boxSizing: "border-box",
+                    transition: "all 0.3s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = COLORS.accent;
+                    e.target.style.boxShadow = `0 0 8px ${COLORS.accent}20`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = COLORS.primary;
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Email */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "600",
+                color: COLORS.text,
+                fontSize: "0.9rem",
+              }}
+            >
+              E-mail Adresi
+            </label>
+            <div style={{ position: "relative" }}>
+              <i
+                className="bi bi-envelope"
+                style={{
+                  position: "absolute",
+                  left: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  fontSize: "1.1rem",
+                  pointerEvents: "none",
+                  color: COLORS.text,
+                }}
+              ></i>
               <input
-                type="text"
-                name="full_name"
-                value={formData.full_name}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                placeholder="Adınız ve Soyadınız"
-                required={!isLogin}
+                placeholder="ornek@mail.com"
+                required
                 style={{
                   width: "100%",
-                  padding: "0.75rem",
+                  padding: "0.75rem 0.75rem 0.75rem 2.5rem",
                   border: `2px solid ${COLORS.text}`,
                   borderRadius: "8px",
                   fontFamily: "Montserrat",
@@ -197,47 +303,6 @@ function AuthModal({ show, type, onClose }) {
                 }}
               />
             </div>
-          )}
-
-          {/* Email */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                color: COLORS.text,
-                fontSize: "0.9rem",
-              }}
-            >
-              E-mail Adresi
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="ornek@mail.com"
-              required
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                border: `2px solid ${COLORS.text}`,
-                borderRadius: "8px",
-                fontFamily: "Montserrat",
-                fontSize: "0.95rem",
-                boxSizing: "border-box",
-                transition: "all 0.3s ease",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = COLORS.accent;
-                e.target.style.boxShadow = `0 0 8px ${COLORS.accent}20`;
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = COLORS.primary;
-                e.target.style.boxShadow = "none";
-              }}
-            />
           </div>
 
           {/* Şifre */}
@@ -253,60 +318,30 @@ function AuthModal({ show, type, onClose }) {
             >
               Şifre
             </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="En az 8 karakter"
-              required
-              minLength="6"
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                border: `2px solid ${COLORS.text}`,
-                borderRadius: "8px",
-                fontFamily: "Montserrat",
-                fontSize: "0.95rem",
-                boxSizing: "border-box",
-                transition: "all 0.3s ease",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = COLORS.accent;
-                e.target.style.boxShadow = `0 0 8px ${COLORS.accent}20`;
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = COLORS.primary;
-                e.target.style.boxShadow = "none";
-              }}
-            />
-          </div>
-
-          {/* Şifre Onayla (Sadece Signup) */}
-          {!isLogin && (
-            <div style={{ marginBottom: "1rem" }}>
-              <label
+            <div style={{ position: "relative" }}>
+              <i
+                className="bi bi-lock"
                 style={{
-                  display: "block",
-                  marginBottom: "0.5rem",
-                  fontWeight: "600",
+                  position: "absolute",
+                  left: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  fontSize: "1.1rem",
+                  pointerEvents: "none",
                   color: COLORS.text,
-                  fontSize: "0.9rem",
                 }}
-              >
-                Şifreyi Onayla
-              </label>
+              ></i>
               <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
                 onChange={handleChange}
-                placeholder="Şifreyi tekrar girin"
-                required={!isLogin}
+                placeholder="En az 8 karakter"
+                required
                 minLength="6"
                 style={{
                   width: "100%",
-                  padding: "0.75rem",
+                  padding: "0.75rem 2.75rem 0.75rem 2.75rem",
                   border: `2px solid ${COLORS.text}`,
                   borderRadius: "8px",
                   fontFamily: "Montserrat",
@@ -323,6 +358,147 @@ function AuthModal({ show, type, onClose }) {
                   e.target.style.boxShadow = "none";
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s ease",
+                  color: COLORS.text,
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.opacity = "0.7";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.opacity = "1";
+                }}
+              >
+                <i className={`bi ${showPassword ? "bi-eye" : "bi-eye-slash"}`} style={{ fontSize: "1.1rem" }}></i>
+              </button>
+            </div>
+          </div>
+
+          {/* Beni Hatırla (Sadece Login) */}
+          {isLogin && (
+            <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{
+                  cursor: "pointer",
+                  width: "18px",
+                  height: "18px",
+                  accentColor: COLORS.accent,
+                }}
+              />
+              <label
+                htmlFor="rememberMe"
+                style={{
+                  fontSize: "0.85rem",
+                  color: COLORS.text,
+                  cursor: "pointer",
+                  marginBottom: 0,
+                }}
+              >
+                Beni hatırla
+              </label>
+            </div>
+          )}
+
+          {/* Şifre Onayla (Sadece Signup) */}
+          {!isLogin && (
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  fontWeight: "600",
+                  color: COLORS.text,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Şifreyi Onayla
+              </label>
+              <div style={{ position: "relative" }}>
+                <i
+                  className="bi bi-lock"
+                  style={{
+                    position: "absolute",
+                    left: "0.75rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    fontSize: "1.1rem",
+                    pointerEvents: "none",
+                    color: COLORS.text,
+                  }}
+                ></i>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Şifreyi tekrar girin"
+                  required={!isLogin}
+                  minLength="6"
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem 2.75rem 0.75rem 2.75rem",
+                    border: `2px solid ${COLORS.text}`,
+                    borderRadius: "8px",
+                    fontFamily: "Montserrat",
+                    fontSize: "0.95rem",
+                    boxSizing: "border-box",
+                    transition: "all 0.3s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = COLORS.accent;
+                    e.target.style.boxShadow = `0 0 8px ${COLORS.accent}20`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = COLORS.primary;
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "0.75rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.3s ease",
+                    color: COLORS.text,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.opacity = "0.7";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.opacity = "1";
+                  }}
+                >
+                  <i className={`bi ${showConfirmPassword ? "bi-eye" : "bi-eye-slash"}`} style={{ fontSize: "1.1rem" }}></i>
+                </button>
+              </div>
             </div>
           )}
 
@@ -359,7 +535,22 @@ function AuthModal({ show, type, onClose }) {
               }
             }}
           >
-            {loading ? "⏳ İşleniyor..." : isLogin ? "🔓 Giriş Yap" : "✅ Hesap Oluştur"}
+            {loading ? (
+              <>
+                <i className="bi bi-hourglass-split" style={{ marginRight: "0.5rem" }}></i>
+                İşleniyor...
+              </>
+            ) : isLogin ? (
+              <>
+                <i className="bi bi-unlock-fill" style={{ marginRight: "0.5rem" }}></i>
+                Giriş Yap
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check-lg" style={{ marginRight: "0.5rem" }}></i>
+                Hesap Oluştur
+              </>
+            )}
           </button>
 
           {/* Status Mesajı */}

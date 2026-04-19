@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { COLORS } from "../constants/color";
 import LogoSVG from "./LogoSVG";
 import AuthModal from "../features/auth/AuthModal";
+import logger from "../utils/logger";
 
 function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,9 @@ function NavBar() {
     // localStorage'dan user bilgisini al
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const userData = JSON.parse(storedUser);
+      logger.storageGet("user", userData);
+      setUser(userData);
       setAuthModal({ show: false, type: null });
     }
   }, []);
@@ -36,6 +39,8 @@ function NavBar() {
   };
 
   const handleLogout = () => {
+    logger.authLogout();
+    logger.storageRemove("user");
     localStorage.removeItem("user");
     setUser(null);
     setDropdownOpen(false);
@@ -135,8 +140,8 @@ function NavBar() {
                     }
                   }}
                 >
-                  <span>👤</span>
-                  <span>{user.full_name || user.email}</span>
+                  <i className="bi bi-person-fill"></i>
+                  <span>{user.full_name}</span>
                 </button>
 
                 {/* Dropdown Menu */}
@@ -192,7 +197,8 @@ function NavBar() {
                         e.target.style.color = COLORS.text;
                       }}
                     >
-                      🚪 Çıkış Yap
+                      <i className="bi bi-box-arrow-right" style={{ marginRight: "0.5rem" }}></i>
+                      Çıkış Yap
                     </button>
                   </div>
                 )}
