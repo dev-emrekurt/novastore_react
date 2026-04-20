@@ -16,6 +16,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 992);
 
   const filteredProducts = 
     activeCategory === 0 
@@ -51,6 +52,18 @@ export default function Products() {
       }
     };
     fetchData();
+  }, []);
+
+  /**
+   * Window resize dinle ve desktop/mobile durumunu track et
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 992);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   /**
@@ -100,12 +113,24 @@ export default function Products() {
   return (
     <Main>
       <div className="col-12">
-        {/* Category Filters - with icons from API */}
-        <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
+        {/* Category Filters - with icons from API - Touch Scrollable */}
+        <div 
+          className="d-flex gap-1 mb-3 pb-2"
+          style={{
+            overflowX: "auto",
+            overflowY: "hidden",
+            flexWrap: "nowrap",
+            justifyContent: isDesktop ? "center" : "flex-start",
+            paddingRight: "1rem",
+            WebkitOverflowScrolling: "touch",
+            scrollBehavior: "smooth",
+          }}
+        >
           <Button
             variant={activeCategory === 0 ? "primary" : "secondary"}
             onClick={() => setActiveCategory(0)}
             icon="bi bi-grid-3x3-gap"
+            style={{ padding: "4px 14px", fontSize: "0.8rem", flexShrink: 0 }}
           >
             Tümü
           </Button>
@@ -115,6 +140,7 @@ export default function Products() {
               variant={activeCategory === category.CategoryID ? "primary" : "secondary"}
               onClick={() => setActiveCategory(category.CategoryID)}
               icon={category.Icon ? `bi ${category.Icon}` : undefined}
+              style={{ padding: "4px 14px", fontSize: "0.8rem", flexShrink: 0 }}
             >
               {category.CategoryName}
             </Button>

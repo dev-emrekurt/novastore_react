@@ -84,9 +84,10 @@ function NavBar() {
         backgroundColor: COLORS.background,
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
         borderBottom: `1px solid ${COLORS.text}`,
+        position: "relative",
       }}
     >
-      <div className="container-fluid px-4">
+      <div className="container-fluid px-4 d-flex align-items-center">
         {/* Logo ve Brand - Sol */}
         <Link
           className="navbar-brand d-flex align-items-center gap-2 flex-shrink-0"
@@ -94,29 +95,39 @@ function NavBar() {
           style={{ color: COLORS.text }}
         >
           <LogoSVG width="45" height="45" />
-          <span className="fw-bold d-none d-md-block" style={{ fontSize: "1.25rem", color: COLORS.text }}>
+          <span className="fw-bold" style={{ fontSize: "1.25rem", color: COLORS.text }}>
             NovaStore
           </span>
         </Link>
 
-        {/* Responsive Toggle Button */}
-        <button
-          className="navbar-toggler border-0"
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
+        {/* Navbar Collapse - Menu Items (Desktop - Ortada / Mobile - Hamburger açıldığında) */}
+        <div 
+          className={`d-none d-lg-flex collapse navbar-collapse ${isOpen ? "show" : ""}`} 
+          id="navbarNav"
           style={{
-            color: COLORS.text,
+            position: "static",
+            backgroundColor: "transparent",
+            border: "none",
+            boxShadow: "none",
+            zIndex: "auto",
+            padding: "0",
+            flex: "1",
+            justifyContent: "center",
+            transition: "all 0.3s ease",
           }}
         >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Navbar Collapse - Orta ve Sağ */}
-        <div className={`collapse navbar-collapse ${isOpen ? "show" : ""}`} id="navbarNav">
-          {/* Menu Items - Orta */}
-          <ul className="navbar-nav mx-auto gap-2">
+          {/* Menu Items */}
+          <ul 
+            className="navbar-nav" 
+            style={{ 
+              flexDirection: "row",
+              gap: "1rem",
+              width: isOpen ? "100%" : "auto",
+              margin: 0,
+            }}
+          >
             {menuItems.map((item) => (
-              <li key={item.id} className="nav-item">
+              <li key={item.id} className="nav-item w-100">
                 <Link
                   className={`nav-link fw-semibold ${isActive(item.href) ? "active" : ""}`}
                   to={item.href}
@@ -125,7 +136,12 @@ function NavBar() {
                     color: isActive(item.href) ? COLORS.accent : COLORS.text,
                     transition: "all 0.3s ease",
                     fontWeight: isActive(item.href) ? "700" : "600",
-                    fontSize: "0.9rem",
+                    fontSize: "0.95rem",
+                    padding: "0.5rem 0.75rem",
+                    border: "none",
+                    borderBottom: isActive(item.href) ? `3px solid ${COLORS.accent}` : "3px solid transparent",
+                    backgroundColor: "transparent",
+                    width: "auto",
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.color = COLORS.accent;
@@ -141,39 +157,117 @@ function NavBar() {
               </li>
             ))}
           </ul>
+        </div>
 
-          {/* Buttons - Sağ Taraf */}
-          <div className="d-flex gap-2 align-items-center flex-shrink-0">
-            {user ? (
-              <>
-                {/* Cart Button */}
-                <Link
-                  to="/cart"
-                  className="btn fw-semibold d-flex align-items-center gap-2"
-                  style={{
-                    color: COLORS.text,
-                    backgroundColor: "transparent",
-                    border: `2px solid ${COLORS.text}`,
-                    transition: "all 0.3s ease",
-                    padding: "8px 16px",
-                    fontSize: "0.85rem",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = COLORS.text;
-                    e.currentTarget.style.color = COLORS.background;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = COLORS.text;
-                  }}
-                >
-                  <i className="bi bi-cart3"></i>
-                  <span>Sepetim</span>
-                </Link>
+        {/* Responsive Mobile Menu - Only shows on mobile when hamburger is clicked */}
+        {isOpen && (
+          <div
+            className="d-lg-none"
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              backgroundColor: COLORS.secondary,
+              borderTop: `2px solid ${COLORS.text}`,
+              borderBottom: `2px solid ${COLORS.text}`,
+              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+              zIndex: 999,
+              padding: "1rem 0",
+              width: "100%",
+            }}
+          >
+            <ul 
+              className="navbar-nav"
+              style={{
+                flexDirection: "column",
+                gap: 0,
+                width: "100%",
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              {menuItems.map((item) => (
+                <li key={`mobile-${item.id}`} className="nav-item w-100">
+                  <Link
+                    className={`nav-link fw-semibold ${isActive(item.href) ? "active" : ""}`}
+                    to={item.href}
+                    onClick={() => setIsOpen(false)}
+                    style={{
+                      color: isActive(item.href) ? COLORS.accent : COLORS.text,
+                      transition: "all 0.3s ease",
+                      fontWeight: isActive(item.href) ? "700" : "600",
+                      fontSize: "0.95rem",
+                      padding: "0.75rem 1.5rem",
+                      borderLeft: isActive(item.href) ? `4px solid ${COLORS.accent}` : "4px solid transparent",
+                      backgroundColor: isActive(item.href) ? COLORS.background : "transparent",
+                      width: "100%",
+                      display: "block",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = COLORS.background;
+                      e.target.style.color = COLORS.accent;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive(item.href)) {
+                        e.target.style.backgroundColor = "transparent";
+                        e.target.style.color = COLORS.text;
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-                {/* User Dropdown */}
-                <div style={{ position: "relative" }} ref={dropdownRef}>
+        {/* Toggle Button + Action Buttons Container (Sağ taraf) */}
+        <div className="d-flex gap-2 align-items-center flex-shrink-0 ms-auto">
+          {/* Responsive Toggle Button */}
+          <button
+            className="navbar-toggler border-0"
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            style={{
+              color: COLORS.text,
+            }}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+
+          {/* Action Buttons - Cart & User (Daima Görünür) */}
+          {user ? (
+            <>
+              {/* Cart Button */}
+              <Link
+                to="/cart"
+                className="btn fw-semibold d-flex align-items-center gap-2"
+                style={{
+                  color: COLORS.text,
+                  backgroundColor: "transparent",
+                  border: `2px solid ${COLORS.text}`,
+                  transition: "all 0.3s ease",
+                  padding: "8px 12px",
+                  fontSize: "0.85rem",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.text;
+                  e.currentTarget.style.color = COLORS.background;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = COLORS.text;
+                }}
+              >
+                <i className="bi bi-cart3"></i>
+                <span className="d-none d-lg-inline">Sepetim</span>
+              </Link>
+
+              {/* User Dropdown */}
+              <div style={{ position: "relative" }} ref={dropdownRef}>
                 <button
                   className="btn fw-semibold d-flex align-items-center gap-2"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -182,7 +276,7 @@ function NavBar() {
                     backgroundColor: COLORS.accent,
                     border: `2px solid ${COLORS.accent}`,
                     transition: "all 0.3s ease",
-                    padding: "8px 16px",
+                    padding: "8px 12px",
                     fontSize: "0.85rem",
                     whiteSpace: "nowrap",
                   }}
@@ -198,7 +292,7 @@ function NavBar() {
                   }}
                 >
                   <i className="bi bi-person-fill"></i>
-                  <span>{user.full_name}</span>
+                  <span className="d-none d-lg-inline">{user.full_name}</span>
                 </button>
 
                 {/* Dropdown Menu */}
@@ -289,59 +383,59 @@ function NavBar() {
                   </div>
                 )}
               </div>
-              </>
-            ) : (
-              // Login/Register Buttons
-              <>
-                <button
-                  className="btn fw-semibold"
-                  onClick={() => openAuthModal("signup")}
-                  style={{
-                    color: COLORS.text,
-                    backgroundColor: "transparent",
-                    border: `2px solid ${COLORS.text}`,
-                    transition: "all 0.3s ease",
-                    padding: "8px 16px",
-                    fontSize: "0.85rem",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = COLORS.text;
-                    e.target.style.color = COLORS.background;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "transparent";
-                    e.target.style.color = COLORS.text;
-                  }}
-                >
-                  Hesap Oluştur
-                </button>
-                <button
-                  className="btn fw-semibold"
-                  onClick={() => openAuthModal("login")}
-                  style={{
-                    color: "white",
-                    backgroundColor: COLORS.accent,
-                    border: `2px solid ${COLORS.accent}`,
-                    transition: "all 0.3s ease",
-                    padding: "8px 16px",
-                    fontSize: "0.85rem",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "white";
-                    e.target.style.color = COLORS.accent;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = COLORS.accent;
-                    e.target.style.color = "white";
-                  }}
-                >
-                  Giriş Yap
-                </button>
-              </>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn fw-semibold d-flex align-items-center gap-2"
+                onClick={() => openAuthModal("signup")}
+                style={{
+                  color: COLORS.text,
+                  backgroundColor: "transparent",
+                  border: `2px solid ${COLORS.text}`,
+                  transition: "all 0.3s ease",
+                  padding: "8px 12px",
+                  fontSize: "0.85rem",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.text;
+                  e.currentTarget.style.color = COLORS.background;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = COLORS.text;
+                }}
+              >
+                <i className="bi bi-person-plus"></i>
+                <span className="d-none d-lg-inline">Hesap Oluştur</span>
+              </button>
+              <button
+                className="btn fw-semibold d-flex align-items-center gap-2"
+                onClick={() => openAuthModal("login")}
+                style={{
+                  color: "white",
+                  backgroundColor: COLORS.accent,
+                  border: `2px solid ${COLORS.accent}`,
+                  transition: "all 0.3s ease",
+                  padding: "8px 12px",
+                  fontSize: "0.85rem",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "white";
+                  e.currentTarget.style.color = COLORS.accent;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.accent;
+                  e.currentTarget.style.color = "white";
+                }}
+              >
+                <i className="bi bi-box-arrow-in-right"></i>
+                <span className="d-none d-lg-inline">Giriş Yap</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
