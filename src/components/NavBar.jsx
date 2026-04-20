@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { COLORS } from "../constants/color";
 import LogoSVG from "./LogoSVG";
@@ -15,6 +15,7 @@ function NavBar() {
   const [logoutNotification, setLogoutNotification] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     // localStorage'dan user bilgisini al
@@ -25,6 +26,25 @@ function NavBar() {
       setAuthModal({ show: false, type: null });
     }
   }, []);
+
+  /**
+   * Dropdown dışında click yapıldığında dropdown'ı kapat
+   */
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    // Dropdown açık ise click listener'ı ekle
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [dropdownOpen]);
 
   const menuItems = [
     { id: "home", label: "ANASAYFA", href: "/" },
@@ -153,7 +173,7 @@ function NavBar() {
                 </Link>
 
                 {/* User Dropdown */}
-                <div style={{ position: "relative" }}>
+                <div style={{ position: "relative" }} ref={dropdownRef}>
                 <button
                   className="btn fw-semibold d-flex align-items-center gap-2"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
