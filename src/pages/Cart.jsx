@@ -164,26 +164,31 @@ function Cart() {
         <div
           style={{
             marginBottom: "3rem",
-            paddingBottom: "1.5rem",
+            paddingBottom: "0",
             borderBottom: `2px solid ${COLORS.text}`,
           }}
         >
           <h1
             style={{
               color: COLORS.text,
-              marginBottom: "0.5rem",
-              fontSize: "2.2rem",
-              fontWeight: "800",
+              marginBottom: "0.25rem",
+              fontSize: "2em",
+              fontWeight: "bold",
             }}
           >
-            <i className="bi bi-cart3"></i> Alışveriş Sepeti
+            <i
+              className="bi bi-cart3"
+              style={{ marginRight: "0.75rem", fontSize: "1em" }}
+            ></i>
+            Alışveriş Sepeti
           </h1>
           <p
             style={{
               color: COLORS.text,
               margin: 0,
+              marginLeft: "3rem",
               fontSize: "1rem",
-              opacity: 0.7,
+              opacity: 1,
             }}
           >
             {cartItems.length} ürün
@@ -210,7 +215,7 @@ function Cart() {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "1.5rem",
+                  gap: "1rem",
                 }}
               >
                 {cartItems.map((item) => (
@@ -219,237 +224,256 @@ function Cart() {
                     hoverable={true}
                     style={{
                       display: "flex",
-                      gap: "1.5rem",
+                      gap: "1rem",
                       alignItems: "center",
                     }}
                   >
                     {/* Product Info */}
-                    <div style={{display: "flex", flexDirection: "row", minWidth: 0, gap: "1.5rem", alignItems: "center", flexGrow: 1, justifyContent: "center"}}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        minWidth: 0,
+                        gap: "1.5rem",
+                        alignItems: "center",
+                        flexGrow: 1,
+                        justifyContent: "center",
+                      }}
+                    >
                       {/* Product Image */}
                       {(item.Image || item.image) && (
-                      <div
-                        style={{
-                          width: "150px",
-                          height: "150px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#f5f5f5",
-                          borderRadius: "8px",
-                          flexShrink: 0,
-                          overflow: "hidden",
-                        }}
-                      >
-                        <img
-                          src={item.Image || item.image}
-                          alt={item.ProductName}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </div>
-                    )}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem", minWidth: 0, flexGrow: 1 }}>
-                      <h5
-                        style={{
-                          color: COLORS.text,
-                          marginBottom: "0.2rem",
-                          fontWeight: "700",
-                          fontSize: "1.1rem",
-                        }}
-                      >
-                        {item.ProductName}
-                      </h5>
-                      <p
-                        style={{
-                          color: COLORS.text,
-                          fontSize: "0.85rem",
-                          margin: 0,
-                          marginBottom: "1rem",
-                          opacity: 0.6,
-                        }}
-                      >
-                        Ürün ID: {item.ProductID}
-                      </p>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "2rem",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {/* Price */}
                         <div
                           style={{
+                            width: "150px",
+                            height: "150px",
                             display: "flex",
-                            flexDirection: "column",
-                            gap: "0.25rem",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#f5f5f5",
+                            borderRadius: "8px",
+                            flexShrink: 0,
+                            overflow: "hidden",
                           }}
                         >
-                          <span
+                          <img
+                            src={item.Image || item.image}
+                            alt={item.ProductName}
                             style={{
-                              fontSize: "0.75rem",
-                              opacity: 0.6,
-                              color: COLORS.text,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
                             }}
-                          >
-                            BİRİM FİYAT
-                          </span>
-                          <span
-                            style={{
-                              color: COLORS.accent,
-                              fontWeight: "800",
-                              fontSize: "1.4rem",
-                            }}
-                          >
-                            {formatPrice(item.Price)}
-                          </span>
+                          />
                         </div>
+                      )}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.05rem",
+                          minWidth: 0,
+                          flexGrow: 1,
+                        }}
+                      >
+                        <h5
+                          style={{
+                            color: COLORS.text,
+                            marginBottom: "0.2rem",
+                            fontWeight: "700",
+                            fontSize: "1.1rem",
+                          }}
+                        >
+                          {item.ProductName}
+                        </h5>
+                        <p
+                          style={{
+                            color: COLORS.text,
+                            fontSize: "0.85rem",
+                            margin: 0,
+                            marginBottom: "1rem",
+                            opacity: 0.6,
+                          }}
+                        >
+                          Ürün ID: {item.ProductID}
+                        </p>
 
-                        {/* Quantity Controls */}
                         <div
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "0.5rem",
-                            backgroundColor: "#f5f5f5",
-                            borderRadius: "8px",
-                            padding: "0.25rem",
-                            border: `2px solid ${COLORS.text}`,
+                            gap: "2rem",
+                            flexWrap: "wrap",
                           }}
                         >
-                          <button
-                            onClick={() =>
-                              updateQuantity(
-                                item.ProductID,
-                                (item.quantity || 1) - 1,
-                              )
-                            }
+                          {/* Price */}
+                          <div
                             style={{
-                              backgroundColor: "transparent",
-                              color: COLORS.text,
-                              border: "none",
-                              padding: "0.4rem 0.6rem",
-                              fontSize: "1.1rem",
-                              transition: "all 0.2s ease",
-                              cursor: "pointer",
-                            }}
-                            title="Miktarı azalt"
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = COLORS.accent;
-                              e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = COLORS.text;
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.25rem",
                             }}
                           >
-                            −
-                          </button>
-                          <span
-                            style={{
-                              minWidth: "40px",
-                              textAlign: "center",
-                              color: COLORS.text,
-                              fontWeight: "700",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            {item.quantity || 1}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(
-                                item.ProductID,
-                                (item.quantity || 1) + 1,
-                              )
-                            }
-                            style={{
-                              backgroundColor: "transparent",
-                              color: COLORS.text,
-                              border: "none",
-                              padding: "0.4rem 0.6rem",
-                              fontSize: "1.1rem",
-                              transition: "all 0.2s ease",
-                              cursor: "pointer",
-                            }}
-                            title="Miktarı arttır"
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = COLORS.accent;
-                              e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = COLORS.text;
-                            }}
-                          >
-                            +
-                          </button>
-                        </div>
+                            <span
+                              style={{
+                                fontSize: "0.75rem",
+                                opacity: 0.6,
+                                color: COLORS.text,
+                              }}
+                            >
+                              BİRİM FİYAT
+                            </span>
+                            <span
+                              style={{
+                                color: COLORS.accent,
+                                fontWeight: "800",
+                                fontSize: "1.4rem",
+                              }}
+                            >
+                              {formatPrice(item.Price)}
+                            </span>
+                          </div>
 
-                        {/* Subtotal */}
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0.25rem",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <span
+                          {/* Quantity Controls */}
+                          <div
                             style={{
-                              fontSize: "0.75rem",
-                              opacity: 0.6,
-                              color: COLORS.text,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              backgroundColor: "#f5f5f5",
+                              borderRadius: "8px",
+                              padding: "0.25rem",
+                              border: `2px solid ${COLORS.text}`,
                             }}
                           >
-                            SATIR TOPLAMI
-                          </span>
-                          <span
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  item.ProductID,
+                                  (item.quantity || 1) - 1,
+                                )
+                              }
+                              style={{
+                                backgroundColor: "transparent",
+                                color: COLORS.text,
+                                border: "none",
+                                padding: "0.4rem 0.6rem",
+                                fontSize: "1.1rem",
+                                transition: "all 0.2s ease",
+                                cursor: "pointer",
+                              }}
+                              title="Miktarı azalt"
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = COLORS.accent;
+                                e.target.style.color = "white";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = COLORS.text;
+                              }}
+                            >
+                              −
+                            </button>
+                            <span
+                              style={{
+                                minWidth: "40px",
+                                textAlign: "center",
+                                color: COLORS.text,
+                                fontWeight: "700",
+                                fontSize: "1rem",
+                              }}
+                            >
+                              {item.quantity || 1}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  item.ProductID,
+                                  (item.quantity || 1) + 1,
+                                )
+                              }
+                              style={{
+                                backgroundColor: "transparent",
+                                color: COLORS.text,
+                                border: "none",
+                                padding: "0.4rem 0.6rem",
+                                fontSize: "1.1rem",
+                                transition: "all 0.2s ease",
+                                cursor: "pointer",
+                              }}
+                              title="Miktarı arttır"
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = COLORS.accent;
+                                e.target.style.color = "white";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = COLORS.text;
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* Subtotal */}
+                          <div
                             style={{
-                              color: COLORS.accent,
-                              fontWeight: "800",
-                              fontSize: "1.4rem",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.25rem",
+                              marginLeft: "auto",
                             }}
                           >
-                            {formatPrice(
-                              parseFloat(item.Price) * (item.quantity || 1),
-                            )}
-                          </span>
+                            <span
+                              style={{
+                                fontSize: "0.75rem",
+                                opacity: 0.6,
+                                color: COLORS.text,
+                              }}
+                            >
+                              SATIR TOPLAMI
+                            </span>
+                            <span
+                              style={{
+                                color: COLORS.accent,
+                                fontWeight: "800",
+                                fontSize: "1.4rem",
+                              }}
+                            >
+                              {formatPrice(
+                                parseFloat(item.Price) * (item.quantity || 1),
+                              )}
+                            </span>
+                          </div>
                         </div>
-                    </div>
-                      
                       </div>
                       {/* Delete Button */}
-                    <button
-                      onClick={() => removeFromCart(item.ProductID)}
-                      style={{
-                        backgroundColor: "transparent",
-                        color: "#dc3545",
-                        border: "none",
-                        fontSize: "1.3rem",
-                        padding: "0.5rem",
-                        transition: "all 0.2s ease",
-                        flexShrink: 0,
-                        cursor: "pointer",
-                      }}
-                      title="Sepetten kaldır"
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = "#fff5f5";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = "transparent";
-                      }}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
+                      <button
+                        onClick={() => removeFromCart(item.ProductID)}
+                        style={{
+                          marginLeft: "50px",
+                          backgroundColor: "transparent",
+                          color: "#dc3545",
+                          border: "none",
+                          fontSize: "2rem",
+                          padding: "0.5rem",
+                          transition: "all 0.2s ease",
+                          flexShrink: 0,
+                          cursor: "pointer",
+                          borderRadius: "10px",
+                        }}
+                        title="Sepetten kaldır"
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#fff5f5";
+                          e.target.style.border = `1px solid ${COLORS.accent}`;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "transparent";
+                          e.target.style.border = "none";
+                        }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
                     </div>
-
-                    
                   </Card>
                 ))}
               </div>
@@ -481,8 +505,6 @@ function Cart() {
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: "1.25rem",
-                    padding: "1rem",
-                    backgroundColor: "#f9f9f9",
                     borderRadius: "8px",
                   }}
                 >
