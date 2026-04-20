@@ -1,5 +1,5 @@
 /**
- * Toast Notification Component
+ * Bildirim Bileşeni
  * Ekranın sağ alt köşesinde kısa bildirimler gösterir
  * 
  * @param {string} message - Gösterilecek mesaj

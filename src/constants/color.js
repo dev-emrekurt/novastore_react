@@ -1,3 +1,4 @@
+// Renk paletinin tanımlanması
 export const COLORS = Object.freeze({
   // 4 Ana Renk
   primary: "#7A9D96",      // Yeşilimsi - Birincil renk

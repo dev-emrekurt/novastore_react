@@ -1,5 +1,4 @@
 /**
- * Reusable Card Component
  * Standart kartlar için wrapper - başlık, içerik, footer opsiyonları ile
  * 
  * @param {object} children - Card içeriği
@@ -54,7 +53,7 @@ export default function Card({
         </div>
       )}
 
-      {/* Main content */}
+      {/* Main bölümü */}
       <div style={{ padding: "1.5rem" }}>
         {children}
       </div>

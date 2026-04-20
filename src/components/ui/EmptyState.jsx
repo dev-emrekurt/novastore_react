@@ -1,11 +1,10 @@
 /**
- * Empty State Component
- * Hiçbir veri olmadığında gösterilecek görselle beraber mesaj
+ * Hiçbir veri olmadığında gösterilecek durum kartı
  * 
- * @param {string} icon - Bootstrap icon class
+ * @param {string} icon - Bootstrap ikon class
  * @param {string} title - Başlık
- * @param {string} description - Açıklama
- * @param {object} action - Optional action button { label, onClick }
+ * @param {string} description - Açıklama metni
+ * @param {object} action - Opsiyonel aksiyon butonu { label, onClick }
  */
 
 import { COLORS } from "../../constants/color";
@@ -23,7 +22,7 @@ export default function EmptyState({ icon, title, description, action = null }) 
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
       }}
     >
-      {/* Icon */}
+      {/* İkon */}
       <i
         className={`bi ${icon}`}
         style={{
@@ -34,17 +33,17 @@ export default function EmptyState({ icon, title, description, action = null }) 
         }}
       ></i>
 
-      {/* Title */}
+      {/* Başlık */}
       <h3 style={{ color: COLORS.text, marginBottom: "1rem", marginTop: 0 }}>
         {title}
       </h3>
 
-      {/* Description */}
+      {/* Açıklama */}
       <p style={{ color: COLORS.text, fontSize: "1rem", marginBottom: "1.5rem", opacity: 0.8 }}>
         {description}
       </p>
 
-      {/* Optional Action Button */}
+      {/* Opsiyonel Aksiyon Butonu */}
       {action && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
           <Button

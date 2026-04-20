@@ -1,5 +1,4 @@
 /**
- * Reusable Button Component
  * Tüm uygulamada kullanılan primary/secondary button stilleri
  * 
  * @param {string} variant - 'primary' | 'secondary' | 'danger'
@@ -7,7 +6,7 @@
  * @param {boolean} disabled - Devre dışı durumu
  * @param {function} onClick - Tıklama handler
  * @param {string} children - Button text/content
- * @param {object} style - Additional styles
+ * @param {object} style - Ekstra stil objesi
  */
 
 import { COLORS } from "../../constants/color";

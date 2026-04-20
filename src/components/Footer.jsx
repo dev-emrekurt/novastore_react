@@ -230,12 +230,12 @@ function Footer() {
         <hr style={{ opacity: 0.3, borderColor: COLORS.text }} />
 
         {/* Alt Footer */}
-        <div className="text-center pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div className="pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
           <p
             style={{
               fontSize: "0.875rem",
               opacity: 0.85,
-              marginBottom: "1rem",
+              marginBottom: 0,
             }}
           >
             © 2026{" "}
@@ -258,7 +258,7 @@ function Footer() {
             </a>
             . Tüm hakları saklıdır.
           </p>
-          <div style={{ marginBottom: "1rem" }}>
+          <div style={{ marginBottom: 0 }}>
             <a
               href="#"
               style={{
