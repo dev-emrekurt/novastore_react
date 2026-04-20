@@ -3,7 +3,7 @@ export const COLORS = Object.freeze({
   // 4 Ana Renk
   primary: "#7A9D96",      // Yeşilimsi - Birincil renk
   secondary: "#CAE4DB",    // Açık yeşil - İkincil renk
-  accent: "#DCAE1D",       // Sarı/Altın - Vurgu rengi
+  accent: "#DBAF1C",       // Sarı/Altın - Vurgu rengi
   text: "#00303F",         // Koyu mavi - Metin rengi
 
   // Ek renkler
