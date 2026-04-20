@@ -300,7 +300,7 @@ function Footer() {
           <p style={{ fontSize: "0.875rem", opacity: 0.85, marginBottom: 0 }}>
             👨‍💻{" "}
             <a
-              href="https://www.linkedin.com/in/dev-emrekurt/"
+              href="https://linktr.ee/dev.emrekurt"
               style={{
                 color: COLORS.text,
                 textDecoration: "none",
