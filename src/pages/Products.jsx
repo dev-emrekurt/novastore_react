@@ -196,7 +196,7 @@ export default function Products() {
                   </div>
 
                   {/* Product Name */}
-                  <h4 className="fw-bold mb-2" style={{ color: COLORS.text }}>
+                  <h4 className="fw-bold mb-2" style={{ color: COLORS.text, textAlign: "center" }}>
                     {product.ProductName}
                   </h4>
 
