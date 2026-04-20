@@ -93,7 +93,7 @@ export default function Home() {
           ></div>
 
           {/* Content */}
-          <div style={{ position: "relative", zIndex: 2 }}>
+          <div style={{ position: "relative", zIndex: 2}}>
             <h1
               className="display-4 fw-bold mb-3"
               style={{ color: COLORS.text }}
@@ -107,18 +107,20 @@ export default function Home() {
               Kaliteli ürünler, harika fiyatlar ve mükemmel müşteri hizmetiyle
               sizin için buradayız.
             </p>
-            <Link
-              to="/products"
-              style={{ textDecoration: "none" }}
-            >
-              <Button
-                variant="primary"
-                icon="bi bi-arrow-right"
-                style={{ fontSize: "1rem", padding: "12px 30px" }}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Link
+                to="/products"
+                style={{ textDecoration: "none" }}
               >
-                Alışverişe Başla
-              </Button>
-            </Link>
+                <Button
+                  variant="primary"
+                  icon="bi bi-arrow-right"
+                  style={{ fontSize: "1rem", padding: "12px 30px" }}
+                >
+                  Alışverişe Başla
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

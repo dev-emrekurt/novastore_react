@@ -31,7 +31,9 @@ function Cart() {
    * @param {number} productId - Silinecek ürün ID'si
    */
   const removeFromCart = (productId) => {
-    const updatedCart = cartItems.filter(item => item.ProductID !== productId);
+    const updatedCart = cartItems.filter(
+      (item) => item.ProductID !== productId,
+    );
     setCartItems(updatedCart);
     saveCart(updatedCart);
     logger.info(`🗑️ Item Removed from Cart: ${productId}`);
@@ -48,8 +50,8 @@ function Cart() {
       return;
     }
 
-    const updatedCart = cartItems.map(item =>
-      item.ProductID === productId ? { ...item, quantity: newQuantity } : item
+    const updatedCart = cartItems.map((item) =>
+      item.ProductID === productId ? { ...item, quantity: newQuantity } : item,
     );
     setCartItems(updatedCart);
     saveCart(updatedCart);
@@ -61,7 +63,10 @@ function Cart() {
    * @returns {number} - Toplam fiyat
    */
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (parseFloat(item.Price) * (item.quantity || 1)), 0);
+    return cartItems.reduce(
+      (total, item) => total + parseFloat(item.Price) * (item.quantity || 1),
+      0,
+    );
   };
 
   /**
@@ -72,7 +77,7 @@ function Cart() {
     try {
       setIsCreatingOrder(true);
       setNotification(null);
-      
+
       // User kontrolü
       const storedUser = localStorage.getItem("user");
       if (!storedUser) {
@@ -96,21 +101,24 @@ function Cart() {
         return;
       }
 
-      logger.info("🛒 Creating Order", { itemCount: cartItems.length, total: getTotalPrice() });
-      
+      logger.info("🛒 Creating Order", {
+        itemCount: cartItems.length,
+        total: getTotalPrice(),
+      });
+
       // Siparişi oluştur
       const response = await setOrderService.createOrderFromCart();
-      
+
       logger.success("✅ Order Created Successfully", response);
       setNotification({
         type: "success",
         message: "Siparişiniz başarıyla oluşturuldu!",
       });
-      
+
       // Sepeti boşalt
       setCartItems([]);
       clearCart();
-      
+
       // 2 saniye sonra geçmiş siparişlere yönlendir
       setTimeout(() => {
         navigate("/orders");
@@ -128,21 +136,58 @@ function Cart() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "calc(100vh - 200px)", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: COLORS.secondary }}>
+      <div
+        style={{
+          minHeight: "calc(100vh - 200px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: COLORS.secondary,
+        }}
+      >
         <LoadingSpinner message="Sepet yükleniyor..." size="large" />
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "calc(100vh - 200px)", backgroundColor: COLORS.secondary, paddingTop: "2rem", paddingBottom: "3rem" }}>
+    <div
+      style={{
+        minHeight: "calc(100vh - 200px)",
+        backgroundColor: COLORS.primary,
+        paddingTop: "2rem",
+        paddingBottom: "3rem",
+      }}
+    >
       <div className="container">
         {/* Header */}
-        <div style={{ marginBottom: "3rem" }}>
-          <h1 style={{ color: COLORS.text, marginBottom: "0.5rem", fontSize: "2.5rem", fontWeight: "700" }}>
+        <div
+          style={{
+            marginBottom: "3rem",
+            paddingBottom: "1.5rem",
+            borderBottom: `2px solid ${COLORS.text}`,
+          }}
+        >
+          <h1
+            style={{
+              color: COLORS.text,
+              marginBottom: "0.5rem",
+              fontSize: "2.2rem",
+              fontWeight: "800",
+            }}
+          >
             <i className="bi bi-cart3"></i> Alışveriş Sepeti
           </h1>
-          <p style={{ color: "#666", margin: 0 }}>{cartItems.length} ürün</p>
+          <p
+            style={{
+              color: COLORS.text,
+              margin: 0,
+              fontSize: "1rem",
+              opacity: 0.7,
+            }}
+          >
+            {cartItems.length} ürün
+          </p>
         </div>
 
         {/* Empty State */}
@@ -161,7 +206,13 @@ function Cart() {
           <div className="row g-4">
             {/* Cart Items Column */}
             <div className="col-lg-8">
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.5rem",
+                }}
+              >
                 {cartItems.map((item) => (
                   <Card
                     key={item.ProductID}
@@ -172,44 +223,112 @@ function Cart() {
                       alignItems: "center",
                     }}
                   >
-                    {/* Product Image */}
-                    {item.image && (
+                    {/* Product Info */}
+                    <div style={{display: "flex", flexDirection: "row", minWidth: 0, gap: "1.5rem", alignItems: "center", flexGrow: 1, justifyContent: "center"}}>
+                      {/* Product Image */}
+                      {(item.Image || item.image) && (
                       <div
                         style={{
-                          width: "100px",
-                          height: "100px",
+                          width: "150px",
+                          height: "150px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: COLORS.secondary,
+                          backgroundColor: "#f5f5f5",
                           borderRadius: "8px",
-                          fontSize: "2.5rem",
                           flexShrink: 0,
+                          overflow: "hidden",
                         }}
                       >
-                        {item.image}
+                        <img
+                          src={item.Image || item.image}
+                          alt={item.ProductName}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
                       </div>
                     )}
-
-                    {/* Product Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h5 style={{ color: COLORS.text, marginBottom: "0.5rem", fontWeight: "600" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem", minWidth: 0, flexGrow: 1 }}>
+                      <h5
+                        style={{
+                          color: COLORS.text,
+                          marginBottom: "0.75rem",
+                          fontWeight: "700",
+                          fontSize: "1.1rem",
+                        }}
+                      >
                         {item.ProductName}
                       </h5>
-                      <p style={{ color: "#999", fontSize: "0.9rem", margin: 0, marginBottom: "0.75rem" }}>
+                      <p
+                        style={{
+                          color: COLORS.text,
+                          fontSize: "0.85rem",
+                          margin: 0,
+                          marginBottom: "1rem",
+                          opacity: 0.6,
+                        }}
+                      >
                         Ürün ID: {item.ProductID}
                       </p>
 
-                      <div style={{ display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "2rem",
+                          flexWrap: "wrap",
+                        }}
+                      >
                         {/* Price */}
-                        <span style={{ color: COLORS.accent, fontWeight: "700", fontSize: "1.25rem" }}>
-                          {formatPrice(item.Price)}
-                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.25rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "0.75rem",
+                              opacity: 0.6,
+                              color: COLORS.text,
+                            }}
+                          >
+                            BİRİM FİYAT
+                          </span>
+                          <span
+                            style={{
+                              color: COLORS.accent,
+                              fontWeight: "800",
+                              fontSize: "1.4rem",
+                            }}
+                          >
+                            {formatPrice(item.Price)}
+                          </span>
+                        </div>
 
                         {/* Quantity Controls */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#f5f5f5", borderRadius: "8px", padding: "0.25rem" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            backgroundColor: "#f5f5f5",
+                            borderRadius: "8px",
+                            padding: "0.25rem",
+                            border: `2px solid ${COLORS.text}`,
+                          }}
+                        >
                           <button
-                            onClick={() => updateQuantity(item.ProductID, (item.quantity || 1) - 1)}
+                            onClick={() =>
+                              updateQuantity(
+                                item.ProductID,
+                                (item.quantity || 1) - 1,
+                              )
+                            }
                             style={{
                               backgroundColor: "transparent",
                               color: COLORS.text,
@@ -231,11 +350,24 @@ function Cart() {
                           >
                             −
                           </button>
-                          <span style={{ minWidth: "35px", textAlign: "center", color: COLORS.text, fontWeight: "600" }}>
+                          <span
+                            style={{
+                              minWidth: "40px",
+                              textAlign: "center",
+                              color: COLORS.text,
+                              fontWeight: "700",
+                              fontSize: "1rem",
+                            }}
+                          >
                             {item.quantity || 1}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.ProductID, (item.quantity || 1) + 1)}
+                            onClick={() =>
+                              updateQuantity(
+                                item.ProductID,
+                                (item.quantity || 1) + 1,
+                              )
+                            }
                             style={{
                               backgroundColor: "transparent",
                               color: COLORS.text,
@@ -260,13 +392,39 @@ function Cart() {
                         </div>
 
                         {/* Subtotal */}
-                        <span style={{ color: COLORS.accent, fontWeight: "600", fontSize: "1rem" }}>
-                          Toplam: {formatPrice(parseFloat(item.Price) * (item.quantity || 1))}
-                        </span>
-                      </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.25rem",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "0.75rem",
+                              opacity: 0.6,
+                              color: COLORS.text,
+                            }}
+                          >
+                            SATIR TOPLAMI
+                          </span>
+                          <span
+                            style={{
+                              color: COLORS.accent,
+                              fontWeight: "800",
+                              fontSize: "1.4rem",
+                            }}
+                          >
+                            {formatPrice(
+                              parseFloat(item.Price) * (item.quantity || 1),
+                            )}
+                          </span>
+                        </div>
                     </div>
-
-                    {/* Delete Button */}
+                      
+                      </div>
+                      {/* Delete Button */}
                     <button
                       onClick={() => removeFromCart(item.ProductID)}
                       style={{
@@ -289,6 +447,9 @@ function Cart() {
                     >
                       <i className="bi bi-trash"></i>
                     </button>
+                    </div>
+
+                    
                   </Card>
                 ))}
               </div>
@@ -297,32 +458,97 @@ function Cart() {
             {/* Order Summary */}
             <div className="col-lg-4">
               <Card
-                header={<h4 style={{ margin: 0, color: COLORS.text }}>Sipariş Özeti</h4>}
+                header={
+                  <h4
+                    style={{
+                      margin: 0,
+                      color: COLORS.text,
+                      fontSize: "1.3rem",
+                      fontWeight: "700",
+                    }}
+                  >
+                    Sipariş Özeti
+                  </h4>
+                }
                 style={{
                   position: "sticky",
                   top: "90px",
                 }}
               >
                 {/* Items Count */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                  <span style={{ color: "#666" }}>Ürün Sayısı:</span>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "1.25rem",
+                    padding: "1rem",
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: "8px",
+                  }}
+                >
                   <span style={{ color: COLORS.text, fontWeight: "600" }}>
-                    {cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)}
+                    Ürün Sayısı:
+                  </span>
+                  <span
+                    style={{
+                      color: COLORS.accent,
+                      fontWeight: "700",
+                      fontSize: "1.1rem",
+                    }}
+                  >
+                    {cartItems.reduce(
+                      (sum, item) => sum + (item.quantity || 1),
+                      0,
+                    )}
                   </span>
                 </div>
 
                 {/* Subtotal */}
-                <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "1rem", borderBottom: "1px solid #e0e0e0", marginBottom: "1rem" }}>
-                  <span style={{ color: "#666" }}>Ara Toplam:</span>
-                  <span style={{ color: COLORS.accent, fontWeight: "600" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    paddingBottom: "1rem",
+                    marginBottom: "1rem",
+                    borderBottom: `2px solid ${COLORS.text}20`,
+                  }}
+                >
+                  <span style={{ color: COLORS.text, fontWeight: "600" }}>
+                    Ara Toplam:
+                  </span>
+                  <span
+                    style={{
+                      color: COLORS.accent,
+                      fontWeight: "700",
+                      fontSize: "1.1rem",
+                    }}
+                  >
                     {formatPrice(getTotalPrice())}
                   </span>
                 </div>
 
                 {/* Shipping */}
-                <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "1rem", borderBottom: "1px solid #e0e0e0", marginBottom: "1rem" }}>
-                  <span style={{ color: "#666" }}>Kargo:</span>
-                  <span style={{ color: COLORS.accent, fontWeight: "600" }}>Ücretsiz</span>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    paddingBottom: "1rem",
+                    marginBottom: "1.5rem",
+                    borderBottom: `2px solid ${COLORS.text}20`,
+                  }}
+                >
+                  <span style={{ color: COLORS.text, fontWeight: "600" }}>
+                    Kargo:
+                  </span>
+                  <span
+                    style={{
+                      color: "#10b981",
+                      fontWeight: "700",
+                      fontSize: "1rem",
+                    }}
+                  >
+                    Ücretsiz ✓
+                  </span>
                 </div>
 
                 {/* Total */}
@@ -330,13 +556,28 @@ function Cart() {
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
+                    alignItems: "baseline",
                     paddingBottom: "1.5rem",
                     marginBottom: "2rem",
-                    borderBottom: `2px solid ${COLORS.accent}`,
+                    borderBottom: `3px solid ${COLORS.accent}`,
                   }}
                 >
-                  <span style={{ color: COLORS.text, fontWeight: "700" }}>Toplam:</span>
-                  <span style={{ color: COLORS.accent, fontWeight: "700", fontSize: "1.4rem" }}>
+                  <span
+                    style={{
+                      color: COLORS.text,
+                      fontWeight: "800",
+                      fontSize: "1.1rem",
+                    }}
+                  >
+                    TOPLAM:
+                  </span>
+                  <span
+                    style={{
+                      color: COLORS.accent,
+                      fontWeight: "900",
+                      fontSize: "1.8rem",
+                    }}
+                  >
                     {formatPrice(getTotalPrice())}
                   </span>
                 </div>

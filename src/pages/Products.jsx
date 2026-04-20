@@ -32,6 +32,15 @@ export default function Products() {
         const categoriesData = await categoriesService.getAllCategories();
         setCategories(categoriesData);
         logger.debug("📂 Categories Loaded", categoriesData);
+        // Icon property'yi kontrol et
+        if (categoriesData.length > 0) {
+          logger.debug("🎨 Category Icon Sample", {
+            Name: categoriesData[0].CategoryName,
+            Icon: categoriesData[0].Icon,
+            IconName: categoriesData[0].IconName,
+            AllProps: categoriesData[0]
+          });
+        }
 
         // Ürünleri getir
         const productsData = await productsService.getAllProducts();
@@ -91,11 +100,12 @@ export default function Products() {
   return (
     <Main>
       <div className="col-12">
-        {/* Category Filters */}
+        {/* Category Filters - with icons from API */}
         <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
           <Button
             variant={activeCategory === 0 ? "primary" : "secondary"}
             onClick={() => setActiveCategory(0)}
+            icon="bi bi-grid-3x3-gap"
           >
             Tümü
           </Button>
@@ -104,6 +114,7 @@ export default function Products() {
               key={category.CategoryID}
               variant={activeCategory === category.CategoryID ? "primary" : "secondary"}
               onClick={() => setActiveCategory(category.CategoryID)}
+              icon={category.Icon ? `bi ${category.Icon}` : undefined}
             >
               {category.CategoryName}
             </Button>
@@ -126,12 +137,36 @@ export default function Products() {
                   {/* Product Image */}
                   <div
                     style={{
-                      fontSize: "3.5rem",
+                      width: "100%",
+                      height: "200px",
                       marginBottom: "1rem",
-                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: "#f5f5f5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
                     }}
                   >
-                    {product.image}
+                    {product.Image ? (
+                      <img
+                        src={product.Image}
+                        alt={product.ProductName}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <i
+                        className="bi bi-image"
+                        style={{
+                          fontSize: "3rem",
+                          color: COLORS.accent,
+                        }}
+                      ></i>
+                    )}
                   </div>
 
                   {/* Product Name */}

@@ -20,9 +20,9 @@ export default function Card({
   return (
     <div
       style={{
-        backgroundColor: "white",
+        backgroundColor: COLORS.secondary,
         borderRadius: "12px",
-        border: `1px solid #e0e0e0`,
+        border: `2px solid ${COLORS.text}`,
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
         overflow: "hidden",
         transition: hoverable ? "all 0.3s ease" : "none",
@@ -47,7 +47,7 @@ export default function Card({
           style={{
             backgroundColor: `${COLORS.primary}15`,
             padding: "1.5rem",
-            borderBottom: "1px solid #e0e0e0",
+            borderBottom: `1px solid ${COLORS.text}`,
           }}
         >
           {header}
@@ -65,7 +65,7 @@ export default function Card({
           style={{
             backgroundColor: `${COLORS.accent}10`,
             padding: "1.5rem",
-            borderTop: `2px solid ${COLORS.accent}`,
+            borderTop: `2px solid ${COLORS.text}`,
           }}
         >
           {footer}

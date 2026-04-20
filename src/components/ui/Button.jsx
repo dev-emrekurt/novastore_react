@@ -31,6 +31,9 @@ export default function Button({
       transition: "all 0.3s ease",
       borderRadius: "8px",
       cursor: disabled || loading ? "not-allowed" : "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     };
 
     const variants = {
@@ -85,7 +88,7 @@ export default function Button({
         }
       }}
     >
-      {icon && <i className={icon} style={{ marginRight: "0.5rem" }}></i>}
+      {icon && <i className={icon} style={{ marginRight: "0.5rem", fontSize: "1.3rem" }}></i>}
       {loading ? "Yükleniyor..." : children}
     </button>
   );

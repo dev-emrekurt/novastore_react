@@ -16,10 +16,10 @@ export default function EmptyState({ icon, title, description, action = null }) 
     <div
       className="text-center"
       style={{
-        backgroundColor: "white",
+        backgroundColor: COLORS.secondary,
         borderRadius: "12px",
         padding: "4rem 2rem",
-        border: `2px solid ${COLORS.accent}`,
+        border: `2px solid ${COLORS.text}`,
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
       }}
     >
@@ -40,19 +40,20 @@ export default function EmptyState({ icon, title, description, action = null }) 
       </h3>
 
       {/* Description */}
-      <p style={{ color: "#666", fontSize: "1rem", marginBottom: "1.5rem" }}>
+      <p style={{ color: COLORS.text, fontSize: "1rem", marginBottom: "1.5rem", opacity: 0.8 }}>
         {description}
       </p>
 
       {/* Optional Action Button */}
       {action && (
-        <Button
-          variant="primary"
-          onClick={action.onClick}
-          style={{ marginTop: "1rem" }}
-        >
-          {action.label}
-        </Button>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+          <Button
+            variant="primary"
+            onClick={action.onClick}
+          >
+            {action.label}
+          </Button>
+        </div>
       )}
     </div>
   );
