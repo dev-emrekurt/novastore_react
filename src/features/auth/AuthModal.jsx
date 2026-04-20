@@ -1,32 +1,54 @@
+/**
+ * AuthModal - Authentication Modal Component
+ * 
+ * User registration ve login işlemlerini yönetir.
+ * Features:
+ * - Login/Sign-up form switching
+ * - Email & password validation
+ * - "Beni Hatırla" functionality
+ * - Token & user data storage to localStorage
+ * - Comprehensive error handling
+ * 
+ * @param {boolean} show - Modal açık/kapalı durumu
+ * @param {string} type - Modal tip: 'login' veya 'signup'
+ * @param {function} onClose - Modal kapatma callback
+ */
+
 import { useState, useEffect } from "react";
 import { COLORS } from "../../constants/color";
 import authService from "../../services/authService";
 import logger from "../../utils/logger";
+import { saveUser, saveAuthToken, saveRememberedEmail, removeRememberedEmail, getRememberedEmail } from "../../utils/storage";
 
 function AuthModal({ show, type, onClose }) {
-  const [currentType, setCurrentType] = useState(type);
+  // State Management
+  const [currentType, setCurrentType] = useState(type); // Form tipi: 'login' | 'signup'
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [status, setStatus] = useState(""); // Durum mesajı
+  const [loading, setLoading] = useState(false); // Loading durumu
+  const [showPassword, setShowPassword] = useState(false); // Şifre visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Confirm şifre visibility
+  const [rememberMe, setRememberMe] = useState(false); // "Beni Hatırla" durumu
 
-  // Type prop değiştiğinde güncelle
+  /**
+   * Modal açıldığında veya type değiştiğinde state'i sıfırla
+   * - Form verilerini temizle
+   * - Hatırlanmış email'i load et (login formunda)
+   */
   useEffect(() => {
     if (show) {
       setCurrentType(type);
       setStatus("");
       setRememberMe(false);
       
-      // Hatırlanmış email'i kontrol et (sadece login formunda)
+      // Hatırlanmış email'i load et (sadece login formunda)
       if (type === "login") {
-        const rememberedEmail = localStorage.getItem("rememberedEmail");
+        const rememberedEmail = getRememberedEmail();
         if (rememberedEmail) {
           setFormData((prev) => ({
             ...prev,
@@ -38,20 +60,40 @@ function AuthModal({ show, type, onClose }) {
     }
   }, [show, type]);
 
+  /**
+   * Form input değişimleri yönet
+   * @param {object} e - Input change event
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setStatus("");
+    setStatus(""); // Önceki durum mesajı temizle
   };
 
+  /**
+   * Form submit işlemi - Login veya Signup
+   * 
+   * Signup Process:
+   * 1. Şifre validasyonları (eşleşme, minimum uzunluk)
+   * 2. API'ye register request gönder
+   * 3. Başarılıysa login formuna geç
+   * 
+   * Login Process:
+   * 1. API'ye login request gönder
+   * 2. Başarılıysa:
+   *    - User data'yı localStorage'a kaydet (email, full_name, customer_id)
+   *    - Auth token'ı localStorage'a kaydet
+   *    - "Beni Hatırla" durumuna göre email'i kaydet
+   *    - Sayfayı reload et (NavBar güncellesin)
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (currentType === "signup") {
-      // Şifre uyuşması kontrolü
+      // ========== SIGNUP VALIDATION ==========
       if (formData.password !== formData.confirmPassword) {
         setStatus("Şifreler eşleşmiyor!");
         return;
@@ -75,6 +117,7 @@ function AuthModal({ show, type, onClose }) {
         logger.authRegisterSuccess(result);
         setStatus("✅ Kayıt başarılı! Giriş yapabilirsiniz.");
         
+        // 1.5 saniye sonra login formuna geç
         setTimeout(() => {
           setFormData({ full_name: "", email: "", password: "", confirmPassword: "" });
           setStatus("");
@@ -82,12 +125,12 @@ function AuthModal({ show, type, onClose }) {
           setCurrentType("login");
         }, 1500);
       } catch (err) {
-        logger.error("Kayıt Hatası", err);
+        logger.error("❌ Registration Error", err);
         setStatus(`❌ Hata: ${err.message}`);
         setLoading(false);
       }
     } else {
-      // Login işlemi
+      // ========== LOGIN ==========
       setLoading(true);
       setStatus("Giriş yapılıyor...");
 
@@ -100,21 +143,26 @@ function AuthModal({ show, type, onClose }) {
         logger.authLoginSuccess(result);
         setStatus("✅ Giriş başarılı!");
         
-        // User bilgisini localStorage'a kaydet - fullName'i normalize et (API'den fullName olarak gelir)
+        // User bilgisini localStorage'a kaydet
         const userData = {
           email: result.user?.email || result.email || formData.email,
-          full_name: result.user?.fullName || result.user?.full_name || result.fullName || result.full_name || result.user?.name || result.name || formData.full_name || "Kullanıcı"
+          full_name: result.user?.fullName || result.user?.full_name || result.fullName || result.full_name || result.user?.name || result.name || formData.full_name || "Kullanıcı",
+          customer_id: result.userId || result.user?.userId || result.user?.id || result.id || null,
+          token: result.token || result.user?.token || result.accessToken || result.access_token || null
         };
-        logger.storageSet("user", userData);
-        localStorage.setItem("user", JSON.stringify(userData));
         
-        // Beni Hatırla durumunu kontrol et
+        saveUser(userData);
+        
+        // Token'ı ayrıca authorization için kaydet
+        if (userData.token) {
+          saveAuthToken(userData.token);
+        }
+        
+        // "Beni Hatırla" durumunu kontrol et
         if (rememberMe) {
-          logger.storageSet("rememberedEmail", formData.email);
-          localStorage.setItem("rememberedEmail", formData.email);
+          saveRememberedEmail(formData.email);
         } else {
-          logger.storageRemove("rememberedEmail");
-          localStorage.removeItem("rememberedEmail");
+          removeRememberedEmail();
         }
         
         setTimeout(() => {
@@ -125,7 +173,7 @@ function AuthModal({ show, type, onClose }) {
           window.location.reload();
         }, 1500);
       } catch (err) {
-        logger.error("Giriş Hatası", err);
+        logger.error("❌ Login Error", err);
         setStatus(`❌ Hata: ${err.message}`);
         setLoading(false);
       }

@@ -1,23 +1,26 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { COLORS } from "../constants/color";
 import LogoSVG from "./LogoSVG";
 import AuthModal from "../features/auth/AuthModal";
 import logger from "../utils/logger";
+import Button from "./ui/Button";
+import { clearAllStorage, getUser } from "../utils/storage";
 
 function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [authModal, setAuthModal] = useState({ show: true, type: "login" });
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [logoutNotification, setLogoutNotification] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // localStorage'dan user bilgisini al
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      logger.storageGet("user", userData);
+    const userData = getUser();
+    if (userData) {
+      logger.debug("👤 User Loaded from Storage", userData);
       setUser(userData);
       setAuthModal({ show: false, type: null });
     }
@@ -38,13 +41,20 @@ function NavBar() {
     setAuthModal({ show: false, type: null });
   };
 
+  /**
+   * Kullanıcıyı oturumdan çıkart
+   */
   const handleLogout = () => {
-    logger.authLogout();
-    logger.storageRemove("user");
-    localStorage.removeItem("user");
-    setUser(null);
-    setDropdownOpen(false);
-    setAuthModal({ show: true, type: "login" });
+    setLogoutNotification(true);
+    setTimeout(() => {
+      logger.authLogout();
+      clearAllStorage();
+      setUser(null);
+      setDropdownOpen(false);
+      setAuthModal({ show: true, type: "login" });
+      setLogoutNotification(false);
+      navigate("/");
+    }, 800);
   };
 
   return (
@@ -115,8 +125,35 @@ function NavBar() {
           {/* Buttons - Sağ Taraf */}
           <div className="d-flex gap-2 align-items-center flex-shrink-0">
             {user ? (
-              // User Dropdown
-              <div style={{ position: "relative" }}>
+              <>
+                {/* Cart Button */}
+                <Link
+                  to="/cart"
+                  className="btn fw-semibold d-flex align-items-center gap-2"
+                  style={{
+                    color: COLORS.text,
+                    backgroundColor: "transparent",
+                    border: `2px solid ${COLORS.text}`,
+                    transition: "all 0.3s ease",
+                    padding: "8px 16px",
+                    fontSize: "0.85rem",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = COLORS.text;
+                    e.currentTarget.style.color = COLORS.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = COLORS.text;
+                  }}
+                >
+                  <i className="bi bi-cart3"></i>
+                  <span>Sepetim</span>
+                </Link>
+
+                {/* User Dropdown */}
+                <div style={{ position: "relative" }}>
                 <button
                   className="btn fw-semibold d-flex align-items-center gap-2"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -175,6 +212,34 @@ function NavBar() {
                         {user.email}
                       </p>
                     </div>
+                    <Link
+                      to="/orders"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem 1rem",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        color: COLORS.text,
+                        textAlign: "left",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        fontSize: "0.85rem",
+                        display: "block",
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = COLORS.primary;
+                        e.target.style.color = "white";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "transparent";
+                        e.target.style.color = COLORS.text;
+                      }}
+                    >
+                      <i className="bi bi-bag-check" style={{ marginRight: "0.5rem" }}></i>
+                      Geçmiş Siparişlerim
+                    </Link>
                     <button
                       onClick={handleLogout}
                       style={{
@@ -187,6 +252,7 @@ function NavBar() {
                         cursor: "pointer",
                         transition: "all 0.3s ease",
                         fontSize: "0.85rem",
+                        borderTop: `1px solid ${COLORS.text}`,
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.backgroundColor = COLORS.primary;
@@ -203,6 +269,7 @@ function NavBar() {
                   </div>
                 )}
               </div>
+              </>
             ) : (
               // Login/Register Buttons
               <>
@@ -264,6 +331,75 @@ function NavBar() {
         type={authModal.type}
         onClose={closeAuthModal}
       />
+
+      {/* Logout Notification */}
+      {logoutNotification && (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
+            zIndex: 10000,
+            textAlign: "center",
+            animation: "fadeInScale 0.3s ease",
+          }}
+        >
+          <i
+            className="bi bi-check-circle"
+            style={{
+              fontSize: "3rem",
+              color: COLORS.accent,
+              display: "block",
+              marginBottom: "1rem",
+              animation: "spin 0.8s ease-in-out",
+            }}
+          ></i>
+          <p style={{ color: COLORS.text, fontWeight: "600", marginBottom: 0, fontSize: "1.1rem" }}>
+            Çıkış yapılıyor...
+          </p>
+        </div>
+      )}
+
+      {/* Overlay for Logout */}
+      {logoutNotification && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 9999,
+          }}
+        ></div>
+      )}
+
+      <style>{`
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </nav>
   );
 }

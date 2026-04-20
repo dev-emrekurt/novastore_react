@@ -8,6 +8,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 // Pages
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/orders" element={<Orders />} />
       </Routes>
       <Footer />
     </Router>
