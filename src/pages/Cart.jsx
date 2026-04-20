@@ -251,11 +251,11 @@ function Cart() {
                         />
                       </div>
                     )}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem", minWidth: 0, flexGrow: 1 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem", minWidth: 0, flexGrow: 1 }}>
                       <h5
                         style={{
                           color: COLORS.text,
-                          marginBottom: "0.75rem",
+                          marginBottom: "0.2rem",
                           fontWeight: "700",
                           fontSize: "1.1rem",
                         }}
