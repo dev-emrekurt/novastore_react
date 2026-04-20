@@ -16,24 +16,15 @@ import Orders from "./pages/Orders";
 
 function App() {
   return (
-    
+    /* Router yapısı içinde NavBar, Routes ve Footer bileşenlerinin yerleştirilmesi */
     <Router>
-      // NavBar komponenti tüm sayfalarda görünecek şekilde yerleştirildi
       <NavBar />
       <Routes>
-        // Anasayfa rotası
         <Route path="/" element={<Home />} />
-
-        // Ürünler sayfası rotası
         <Route path="/products" element={<Products />} />
-
-        // Sepet sayfası rotası
         <Route path="/cart" element={<Cart />} />
-
-        // Siparişler sayfası rotası  
         <Route path="/orders" element={<Orders />} />
       </Routes>
-      // Footer komponenti tüm sayfalarda görünecek şekilde yerleştirildi
       <Footer />
     </Router>
   );
